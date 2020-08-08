@@ -1,0 +1,8 @@
+# Editors
+/.idea/
+
+# Python
+__pycache__/
+
+# Project
+/data/
