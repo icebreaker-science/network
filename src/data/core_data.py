@@ -6,6 +6,7 @@ See: https://core.ac.uk/documentation/dataset/
 """
 import json
 import lzma
+import os
 from dataclasses import dataclass
 from typing import List, Any, Iterator
 
@@ -15,6 +16,8 @@ class CoreDataEntry:
     """
     An object of this class represents a line in the dataset.
     """
+
+    json_raw_string: str
 
     doi: str
     core_id: str
@@ -40,10 +43,30 @@ class CoreDataEntry:
     full_text: str
 
 
+def read_all(path: str) -> Iterator[CoreDataEntry]:
+    """
+
+    :param path: The path to the directory containing the unpacked .tar.gz, i.e., to a directory with .xz files
+    :return:
+    """
+
+    files = [os.path.join(path, f) for f in os.listdir(path)
+             if os.path.isfile(os.path.join(path, f)) and f.endswith('.xz')]
+    for f in files:
+        for entry in read_from_xz(f):
+            yield entry
+
+
 def read_from_xz(path: str) -> Iterator[CoreDataEntry]:
+    """
+
+    :param path: The path to a single .xz file
+    :return:
+    """
     with lzma.open(path, mode='rt') as f:
         for line in f:
             obj = json.loads(line)
+            obj['json_raw_string'] = line
 
             # Convert camel case to underscores
             obj['core_id'] = obj.pop('coreId')
