@@ -9,6 +9,7 @@ import lzma
 import os
 from dataclasses import dataclass
 from typing import List, Any, Iterator
+from tqdm import tqdm
 
 
 @dataclass
@@ -52,7 +53,7 @@ def read_all(path: str) -> Iterator[CoreDataEntry]:
 
     files = [os.path.join(path, f) for f in os.listdir(path)
              if os.path.isfile(os.path.join(path, f)) and f.endswith('.xz')]
-    for f in files:
+    for f in tqdm(files, desc='Processed files', total=len(files)):
         for entry in read_from_xz(f):
             yield entry
 
@@ -64,7 +65,7 @@ def read_from_xz(path: str) -> Iterator[CoreDataEntry]:
     :return:
     """
     with lzma.open(path, mode='rt') as f:
-        for line in f:
+        for line in tqdm(f, desc='Processed lines in file'):
             obj = json.loads(line)
             obj['json_raw_string'] = line
 
