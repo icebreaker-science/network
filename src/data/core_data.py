@@ -7,6 +7,7 @@ See: https://core.ac.uk/documentation/dataset/
 import json
 import lzma
 import os
+import sys
 from dataclasses import dataclass
 from typing import List, Any, Iterator
 from tqdm import tqdm
@@ -54,8 +55,12 @@ def read_all(path: str) -> Iterator[CoreDataEntry]:
     files = [os.path.join(path, f) for f in os.listdir(path)
              if os.path.isfile(os.path.join(path, f)) and f.endswith('.xz')]
     for f in tqdm(files, desc='Processed files', total=len(files)):
-        for entry in read_from_xz(f):
-            yield entry
+        try:
+            for entry in read_from_xz(f):
+                yield entry
+        except:
+            print("Unexpected error processing the file", f)
+            print(sys.exc_info()[0])
 
 
 def read_from_xz(path: str) -> Iterator[CoreDataEntry]:
@@ -65,7 +70,7 @@ def read_from_xz(path: str) -> Iterator[CoreDataEntry]:
     :return:
     """
     with lzma.open(path, mode='rt') as f:
-        for line in tqdm(f, desc='Processed lines in file'):
+        for line in f:
             obj = json.loads(line)
             obj['json_raw_string'] = line
 

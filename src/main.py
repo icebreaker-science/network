@@ -1,4 +1,5 @@
 import lzma
+from tqdm import tqdm
 
 from data import basic_filters, core_data
 
@@ -11,7 +12,7 @@ def main():
     ])
 
     with lzma.open('../data/10-filtered/core_chemistry_with_abstracts.json.xz', mode='at') as f:
-        for entry in chemistry_entries_with_abstracts:
+        for entry in tqdm(chemistry_entries_with_abstracts, desc='Found entries'):
             f.write(entry.json_raw_string)
 
 
