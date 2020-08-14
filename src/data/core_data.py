@@ -49,6 +49,7 @@ class CoreDataEntry:
     full_text: str
 
     # --- The following information are computed by us. ---
+    id = None
     language_detected_most_likely: str = None
     # The most probable languages with their probabilities
     language_detected_probabilities: List[Tuple[str, float]] = None
@@ -79,6 +80,7 @@ def to_json(entry: CoreDataEntry) -> str:
         'subjects': entry.subjects,
         'fullText': entry.full_text,
 
+        'id': entry.id,
         'languageDetectedMostLikely': entry.language_detected_most_likely,
         'languageDetectedProbabilities': entry.language_detected_probabilities
     }

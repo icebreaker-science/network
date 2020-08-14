@@ -23,13 +23,14 @@ def main():
 
     data_entries = core_data.read_from_xz('../data/10-filtered/core_chemistry_abstracts.json.xz')
     with lzma.open('../data/10-filtered/core_chemistry_abstracts_langdetected.json.xz', mode='at') as f:
-        for entry in tqdm(data_entries, desc='Processed entries'):
+        for i, entry in tqdm(enumerate(data_entries), desc='Processed entries'):
             try:
                 basic_preprocessing.detect_language(entry)
+                entry.id = i
                 json_str = core_data.to_json(entry) + '\n'
                 f.write(json_str)
             except:
-                print("Unexpected error...")
+                print("Very unexpected error in the main method...")
 
 
 if __name__ == '__main__':
