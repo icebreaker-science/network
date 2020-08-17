@@ -29,6 +29,9 @@ class BasicDataEntry:
     title: str
     abstract: str
     has_full_text: bool
+    year: int
+    topics: List[str]
+    subjects: List[str]
 
     # --- Computed values ---
     language_detected_most_likely: str = None
@@ -113,8 +116,8 @@ class CoreDataEntry:
 
     def to_basic_data_entry(self) -> BasicDataEntry:
         return BasicDataEntry(self.icebreaker_id, self.doi, self.core_id, self.title, self.abstract,
-                              self.full_text is not None, self.language_detected_most_likely,
-                              self.language_detected_probabilities)
+                              self.full_text is not None, self.year, self.topics, self.subjects,
+                              self.language_detected_most_likely, self.language_detected_probabilities)
 
 
 def basic_from_json(json_str: str) -> BasicDataEntry:
