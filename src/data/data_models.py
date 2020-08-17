@@ -21,7 +21,7 @@ class BasicDataEntry:
     """
 
     # --- Our ID ---
-    id: int
+    icebreaker_id: int
 
     # --- Copied from the original dataset ---
     doi: str
@@ -75,7 +75,7 @@ class CoreDataEntry:
     full_text: str
 
     # --- The following information are computed by us. ---
-    id = None
+    icebreaker_id: int = None
     language_detected_most_likely: str = None
     # The most probable languages with their probabilities
     language_detected_probabilities: List[Tuple[str, float]] = None
@@ -105,15 +105,16 @@ class CoreDataEntry:
             'subjects': self.subjects,
             'fullText': self.full_text,
 
-            'id': self.id,
+            'icebreaker_id': self.icebreaker_id,
             'languageDetectedMostLikely': self.language_detected_most_likely,
             'languageDetectedProbabilities': self.language_detected_probabilities
         }
         return json.dumps(obj)
 
     def to_basic_data_entry(self) -> BasicDataEntry:
-        return BasicDataEntry(self.id, self.doi, self.core_id, self.title, self.abstract, self.full_text is not None,
-                              self.language_detected_most_likely, self.language_detected_probabilities)
+        return BasicDataEntry(self.icebreaker_id, self.doi, self.core_id, self.title, self.abstract,
+                              self.full_text is not None, self.language_detected_most_likely,
+                              self.language_detected_probabilities)
 
 
 def basic_from_json(json_str: str) -> BasicDataEntry:
@@ -135,6 +136,9 @@ def core_from_json(json_str: str) -> CoreDataEntry:
 
     obj['language_detected_most_likely'] = obj.pop('languageDetectedMostLikely', None)
     obj['language_detected_probabilities'] = obj.pop('languageDetectedProbabilities', None)
+
+    # I made the mistake to name the field "id" at the beginning without knowing the id is a keyword in python.
+    obj['icebreaker_id'] = obj.pop('id', None)
 
     return CoreDataEntry(**obj)
 
