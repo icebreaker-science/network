@@ -6,6 +6,8 @@ services:
     container_name: icebreaker_network_jupyter
     command: start.sh jupyter lab
     volumes:
-      - ./notebook:/home/jovyan
+      - ./notebook:/home/jovyan/notebook
+      - ./src:/home/jovyan/src
+      - ./data:/home/jovyan/data
     ports:
-      - 12200:8888
+      - 127.0.0.1:12200:8888
