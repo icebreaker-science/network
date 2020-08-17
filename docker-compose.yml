@@ -1,0 +1,11 @@
+version: '3'
+services:
+
+  jupyter:
+    image: jupyter/scipy-notebook
+    container_name: icebreaker_network_jupyter
+    command: start.sh jupyter lab
+    volumes:
+      - ./notebook:/home/jovyan
+    ports:
+      - 12200:8888
