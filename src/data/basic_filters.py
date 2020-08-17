@@ -1,6 +1,6 @@
 from typing import Callable, List, Iterator
 
-from data.core_data import CoreDataEntry
+from data.data_models import CoreDataEntry
 
 
 def apply_filters(entries: Iterator[CoreDataEntry], filters: List[Callable[[CoreDataEntry], bool]]) \

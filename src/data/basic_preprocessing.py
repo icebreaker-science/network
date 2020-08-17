@@ -1,6 +1,6 @@
 from langdetect import detect_langs
 
-from data.core_data import CoreDataEntry
+from data.data_models import CoreDataEntry
 
 
 def detect_language(entry: CoreDataEntry) -> None:
