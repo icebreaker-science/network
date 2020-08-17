@@ -9,5 +9,6 @@ services:
       - ./notebook:/home/jovyan/notebook
       - ./src:/home/jovyan/src
       - ./data:/home/jovyan/data
+      - ./requirements.txt:/home/jovyan/requirements.txt
     ports:
       - 127.0.0.1:12200:8888
