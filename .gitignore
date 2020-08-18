@@ -10,3 +10,9 @@ __pycache__/
 
 # Jupyter
 /notebook/**/.*
+
+# Neo4j
+/neo4j/data/
+/neo4j/logs/
+/neo4j/plugins
+/neo4j/import/
