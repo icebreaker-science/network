@@ -35,11 +35,17 @@ def main():
 
     # ---------------------------------
     # Step 3: Only keep selected fields
-    core_entries = data_models.core_read_from_xz('../data/10-filtered/core_chemistry_abstracts_langdetected.json.xz')
-    with lzma.open('../data/11-basic/basics.json.xz', mode='at') as f:
-        for core in tqdm(core_entries):
-            basic_entry: BasicDataEntry = core.to_basic_data_entry()
-            f.write(basic_entry.to_json() + '\n')
+    # core_entries = data_models.core_read_from_xz('../data/10-filtered/core_chemistry_abstracts_langdetected.json.xz')
+    # with lzma.open('../data/11-basic/basics.json.xz', mode='at') as f:
+    #     for core in tqdm(core_entries):
+    #         basic_entry: BasicDataEntry = core.to_basic_data_entry()
+    #         f.write(basic_entry.to_json() + '\n')
+
+    # --------------------------
+    # Write data into PostgreSQL
+    basic_entries = data_models.basic_read_from_xz('../data/11-basic/basics.json.xz')
+    data_models.write_basics_to_database(basic_entries,
+                                         'localhost', '12210', 'icebreaker_network', 'postgres', 'postgres')
 
 
 if __name__ == '__main__':

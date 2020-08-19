@@ -8,6 +8,7 @@ import json
 import lzma
 import os
 import sys
+import psycopg2
 from dataclasses import dataclass
 from typing import List, Any, Iterator, Tuple, Callable
 from tqdm import tqdm
@@ -184,6 +185,24 @@ def core_read_from_xz(path: str) -> Iterator[CoreDataEntry]:
     """
     for o in _read_from_xz(path, core_from_json):
         yield o
+
+
+def write_basics_to_database(entries: Iterator[BasicDataEntry], dbhost, dbport, dbname, dbuser, dbpassword):
+    """
+    Writes the basics dataset into a PostgreSQL database.
+    """
+    conn = psycopg2.connect("dbname='{}' user='{}' host='{}' port='{}' password='{}'"
+                            .format(dbname, dbuser, dbhost, dbport, dbpassword))
+    cur = conn.cursor()
+    for entry in tqdm(entries):
+        cur.execute("""
+            insert into papers(icebreaker_id, doi, core_id, title, abstract, has_full_text, year, topics, subjects)
+            values (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (entry.icebreaker_id, entry.doi, entry.core_id, entry.title, entry.abstract, entry.has_full_text,
+              entry.year, entry.topics, entry.subjects))
+        conn.commit()
+    cur.close()
+    conn.close( )
 
 
 def _read_from_xz(path: str, parser: Callable[[str], Any]) -> Iterator[Any]:
