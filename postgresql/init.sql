@@ -6,8 +6,8 @@ create table papers (
   abstract text,
   has_full_text boolean,
   year integer,
-  topics text,
-  subjects text,
+  topics json,
+  subjects json,
   language_detected_most_likely text,
-  language_detected_probabilities text
+  language_detected_probabilities json
 );

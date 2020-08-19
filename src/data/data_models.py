@@ -201,8 +201,8 @@ def write_basics_to_database(entries: Iterator[BasicDataEntry], dbhost, dbport, 
                   language_detected_most_likely, language_detected_probabilities)
                 values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (entry.icebreaker_id, entry.doi, entry.core_id, entry.title, entry.abstract, entry.has_full_text,
-                  entry.year, str(entry.topics), str(entry.subjects), entry.language_detected_most_likely,
-                  str(entry.language_detected_probabilities)))
+                  entry.year, json.dumps(entry.topics), json.dumps(entry.subjects), entry.language_detected_most_likely,
+                  json.dumps(entry.language_detected_probabilities)))
             conn.commit()
         except:
             print('Unexpected error..')
