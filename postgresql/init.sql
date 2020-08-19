@@ -7,5 +7,7 @@ create table papers (
   has_full_text boolean,
   year integer,
   topics text,
-  subjects text
+  subjects text,
+  language_detected_most_likely text,
+  language_detected_probabilities text
 );

@@ -195,12 +195,17 @@ def write_basics_to_database(entries: Iterator[BasicDataEntry], dbhost, dbport, 
                             .format(dbname, dbuser, dbhost, dbport, dbpassword))
     cur = conn.cursor()
     for entry in tqdm(entries):
-        cur.execute("""
-            insert into papers(icebreaker_id, doi, core_id, title, abstract, has_full_text, year, topics, subjects)
-            values (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (entry.icebreaker_id, entry.doi, entry.core_id, entry.title, entry.abstract, entry.has_full_text,
-              entry.year, entry.topics, entry.subjects))
-        conn.commit()
+        try:
+            cur.execute("""
+                insert into papers(icebreaker_id, doi, core_id, title, abstract, has_full_text, year, topics, subjects,
+                  language_detected_most_likely, language_detected_probabilities)
+                values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (entry.icebreaker_id, entry.doi, entry.core_id, entry.title, entry.abstract, entry.has_full_text,
+                  entry.year, str(entry.topics), str(entry.subjects), entry.language_detected_most_likely,
+                  str(entry.language_detected_probabilities)))
+            conn.commit()
+        except:
+            print('Unexpected error..')
     cur.close()
     conn.close( )
 

@@ -1,3 +1,4 @@
 langdetect==1.0.8
+psycopg2-binary==2.8.5
 six==1.15.0
 tqdm==4.48.2
