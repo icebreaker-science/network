@@ -4,6 +4,7 @@ services:
   jupyter:
     image: jupyter/scipy-notebook
     container_name: icebreaker_network_jupyter
+    restart: unless-stopped
     command: start.sh jupyter lab
     volumes:
       - ./notebook:/home/jovyan/notebook
@@ -12,3 +13,32 @@ services:
       - ./requirements.txt:/home/jovyan/requirements.txt
     ports:
       - 127.0.0.1:12200:8888
+
+  postgresql:
+    image: postgres:12
+    container_name: icebreaker_network_postgres
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:12210:5432
+    environment:
+      - POSTGRES_DB=icebreaker_network
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  neo4j:
+    image: neo4j:latest
+    container_name: icebreaker_network_neo4j
+    restart: unless-stopped
+    volumes:
+      - ./neo4j/data:/data
+      - ./neo4j/logs:/logs
+      - ./neo4j/conf:/var/lib/neo4j/conf
+      - ./neo4j/plugins:/var/lib/neo4j/plugins
+      - ./neo4j/import:/import
+    ports:
+      - 127.0.0.1:12220:7474  # HTTP / Web interface
+      - 127.0.0.1:12221:7687  # Bolt
+    environment:
+      NEO4J_AUTH: neo4j/elsa  # The username cannot be changed.

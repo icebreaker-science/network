@@ -1,0 +1,1 @@
+create index index_topic_name for (n:Topic) on (n.name);

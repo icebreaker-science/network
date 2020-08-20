@@ -10,6 +10,10 @@ __pycache__/
 
 # Jupyter
 /notebook/**/.*
+/src/**/.*
+
+# PostgreSQL
+/postgresql/data/
 
 # Neo4j
 /neo4j/data/
