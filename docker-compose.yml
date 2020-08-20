@@ -25,6 +25,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
+      - ./postgresql/data:/var/lib/postgresql/data
       - ./postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   neo4j:
