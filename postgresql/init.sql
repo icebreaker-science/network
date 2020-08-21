@@ -11,3 +11,7 @@ create table papers (
   language_detected_most_likely text,
   language_detected_probabilities jsonb
 );
+
+create index on papers (doi);
+
+create index on papers (title);
