@@ -187,27 +187,48 @@ def core_read_from_xz(path: str) -> Iterator[CoreDataEntry]:
         yield o
 
 
-def write_basics_to_database(entries: Iterator[BasicDataEntry], dbhost, dbport, dbname, dbuser, dbpassword):
+def write_basics_to_database(entries: Iterator[BasicDataEntry], dbhost, dbport, dbname, dbuser, dbpassword,
+                             table='papers'):
     """
     Writes the basics dataset into a PostgreSQL database.
     """
     conn = psycopg2.connect("dbname='{}' user='{}' host='{}' port='{}' password='{}'"
                             .format(dbname, dbuser, dbhost, dbport, dbpassword))
     cur = conn.cursor()
-    for entry in tqdm(entries):
+    for entry in tqdm(entries, total=7836565):
         try:
             cur.execute("""
-                insert into papers(icebreaker_id, doi, core_id, title, abstract, has_full_text, year, topics, subjects,
+                insert into {}(icebreaker_id, doi, core_id, title, abstract, has_full_text, year, topics, subjects,
                   language_detected_most_likely, language_detected_probabilities)
                 values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (entry.icebreaker_id, entry.doi, entry.core_id, entry.title, entry.abstract, entry.has_full_text,
-                  entry.year, json.dumps(entry.topics), json.dumps(entry.subjects), entry.language_detected_most_likely,
-                  json.dumps(entry.language_detected_probabilities)))
+            """.format(table), (entry.icebreaker_id, entry.doi, entry.core_id, entry.title, entry.abstract,
+                                entry.has_full_text, entry.year, json.dumps(entry.topics), json.dumps(entry.subjects),
+                                entry.language_detected_most_likely, json.dumps(entry.language_detected_probabilities)))
             conn.commit()
         except:
             print('Unexpected error..')
     cur.close()
-    conn.close( )
+    conn.close()
+
+
+def read_basics_from_database(dbhost, dbport, dbname, dbuser, dbpassword, table='papers') -> Iterator[BasicDataEntry]:
+    conn = psycopg2.connect("dbname='{}' user='{}' host='{}' port='{}' password='{}'"
+                            .format(dbname, dbuser, dbhost, dbport, dbpassword))
+    cur = conn.cursor('my_named_cursor')  # Read https://stackoverflow.com/a/27940340
+    cur.execute(
+        """select icebreaker_id, doi, core_id, title, abstract, has_full_text, year, topics, subjects,
+             language_detected_most_likely, language_detected_probabilities
+           from {};""".format(table))
+    while True:
+        records = cur.fetchmany()
+        if not records:
+            break
+        for r in records:
+            entry = BasicDataEntry(r[0], r[1], r[2], r[3], r[4], r[5], r[6],
+                                   r[7], r[8], r[9], r[10])
+            yield entry
+    cur.close()
+    conn.close()
 
 
 def _read_from_xz(path: str, parser: Callable[[str], Any]) -> Iterator[Any]:
