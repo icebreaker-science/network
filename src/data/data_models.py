@@ -10,8 +10,10 @@ import os
 import sys
 import psycopg2
 from dataclasses import dataclass
+from collections import Counter
+import re
 from typing import List, Any, Iterator, Tuple, Callable
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 
 @dataclass
@@ -241,3 +243,37 @@ def _read_from_xz(path: str, parser: Callable[[str], Any]) -> Iterator[Any]:
     with lzma.open(path, mode='rt') as f:
         for line in f:
             yield parser(line)
+
+
+def count_topics_and_subjects(entries: Iterator[BasicDataEntry], regex='[a-zA-Z0-9 ]*', number_entries=None) -> Tuple[Counter, Counter]:
+    """This function counts how often topics and subjects appear in the dataset. As the CORE dataset has some garbage
+    in the "topics" and "subjects" fields, it makes sense to filter them. The default allows accepts values that only
+    contains alphanumeric characters and spaces.
+    
+    :param entries:
+    :param regex: The regular expression to filter values that should be allowed as a name of a topic and subject.
+    :param number_entries: If the number of entries is known, it is possible to print a better progresbar.
+    :return:
+    """
+    topic_counter = Counter()
+    subject_counter = Counter()
+
+    has_t = 0
+    has_s = 0
+    has_full_text = 0
+    reg = re.compile(regex)
+    
+    for i, entry in tqdm(enumerate(entries), total=number_entries): 
+        ts = entry.topics
+        ss = entry.subjects
+        if ts is not None and len(ts) > 0:
+            topic_counter.update([t.lower() for t in ts if reg.fullmatch(t) is not None])
+            has_t += 1
+        if ss is not None and len(ss) > 0:
+            subject_counter.update([s.lower() for s in ss if reg.fullmatch(s) is not None])
+            has_s += 1
+        if entry.has_full_text:
+            has_full_text += 1
+    print('total entries={}, has topics={}, has subjects={}, has full text={}'.format(i, has_t, has_s, has_full_text))
+    return topic_counter, subject_counter
+            
