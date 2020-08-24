@@ -1,0 +1,48 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="node_modules/normalize.css/normalize.css">
+    <link rel="stylesheet" href="main.css">
+
+    <meta name="theme-color" content="#fafafa">
+</head>
+
+<body>
+
+<div class="container">
+    <div class="left">
+        <div id="mynetwork"></div>
+    </div>
+
+    <div class="right">
+        <div class="search-bar">
+            <div id="keyword-field">
+                <input class="typeahead" type="text" placeholder="Keyword" />
+            </div>
+            <button class="btn" id="add-keyword-btn">Add</button>
+        </div>
+
+        <div id="selected-keywords">
+        </div>
+
+        <div id="information">
+
+        </div>
+    </div>
+
+</div>
+
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/typeahead.js/dist/typeahead.bundle.min.js"></script>
+<script src="node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
+<script src="main.js"></script>
+
+</body>
+
+</html>

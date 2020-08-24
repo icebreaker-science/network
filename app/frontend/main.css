@@ -1,0 +1,86 @@
+.container {
+  display: flex;
+}
+
+.left {
+  flex-grow: 1;
+  height: 100vh;
+  border-right: 4px solid lightgray;
+}
+
+.right {
+  width: 400px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+
+#mynetwork {
+  height: 100%;
+}
+
+
+#selected-keywords {
+  margin-top: 40px;
+}
+
+
+.selected-keyword {
+  height: 40px;
+}
+
+.selected-keyword > span {
+  background: lightblue;
+  border-radius: 10px;
+  padding: 5px;
+}
+
+.selected-keyword > span > span {
+  margin-left: 10px;
+  margin-right: 5px;
+  cursor: pointer;
+  background: white;
+}
+
+
+/* Typeahead */
+
+.search-bar {
+  display: flex;
+}
+
+.typeahead {
+  width: 300px;
+  height: 30px;
+}
+
+.tt-menu {
+  margin-top: 10px;
+  border: 1px solid lightgray;
+  background-color: white;
+  border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  width: 300px;
+}
+
+.tt-suggestion {
+  padding: 10px;
+  border-top: 1px solid lightgray;
+}
+
+.tt-suggestion:hover {
+  background-color: lightblue;
+  cursor: pointer;
+}
+
+.btn {
+  margin-left: 10px;
+  background: lightblue;
+  height: 30px;
+  border: none;
+  border-radius: 10px;
+  outline: none;
+  padding: 6px 20px;
+  cursor: pointer;
+}

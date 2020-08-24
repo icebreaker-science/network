@@ -1,0 +1,26 @@
+version: '3'
+services:
+
+  frontend:
+    build: ./frontend
+    image: icebreakerscience/networkfrontend
+    container_name: icebreaker_network_frontend
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    image: icebreakerscience/networkbackend
+    container_name: icebreaker_network_backend
+    restart: unless-stopped
+
+  nginx:
+    image: nginx
+    container_name: icebreaker_network_nginx
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:12255:80"
+    volumes:
+      - ./nginx-icebreaker.conf:/etc/nginx/conf.d/default.conf

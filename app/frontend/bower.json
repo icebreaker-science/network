@@ -1,0 +1,7 @@
+{
+  "name": "icebreaker-network",
+  "private": true,
+  "dependencies": {
+    "typeahead.js": "^0.11.1"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "icebreaker-network",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "http-server ./ -a 127.0.0.1 -p 12250"
+  },
+  "dependencies": {
+    "http-server": "^0.12.3",
+    "normalize.css": "^8.0.1",
+    "vis-network": "^8.2.0"
+  }
+}
