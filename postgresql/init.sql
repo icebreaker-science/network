@@ -15,3 +15,12 @@ create table papers (
 create index on papers (doi);
 
 create index on papers (title);
+
+
+create table wikidata (
+  wikidata_id text primary key,
+  name text,
+  data jsonb
+);
+
+create index on wikidata (name);
