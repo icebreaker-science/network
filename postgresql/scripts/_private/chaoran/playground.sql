@@ -10,26 +10,29 @@ where icebreaker_id in (137003,316120,328911,393415,931701,989933,1052152,107120
 
 -- Same DOI: 251970,3359789
 -- Same DOI+title: 226911,3192873
+-- Same doi+title+abstract+year+topics+subjects+has_full_text: 198606,2941182
+--    After: 997,14182 -> Why? I guess because null=null -> null and not true.
 select count(*), sum(x.c)
 from (
     select doi, count(*) as c
     from papers
-    where doi is not null and doi <> ''
-    group by doi, title
+    group by doi, title, year, topics, subjects
     having count(*) > 1
 ) as x;
 
-select x.doi, x.title, x.c
+select doi, title, abstract, topics, subjects, x.c
 from (
-    select doi, title, count(*) as c
+    select doi, title, abstract, topics, subjects, count(*) as c
     from papers
-    where doi is not null and doi <> ''
-    group by doi, title
+    group by doi, title, abstract, year, topics, subjects, has_full_text
     having count(*) > 1
 ) as x
 order by x.c desc;
 
 
+-- Before: 7836565
+-- After: 5107174
+-- After2: 3957723
 select count(*)
 from papers;
 
@@ -52,3 +55,9 @@ using topics::jsonb;
 select count(*)
 from papers
 where has_full_text;
+
+
+select year, count(*)
+from papers
+group by year
+order by year;

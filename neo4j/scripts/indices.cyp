@@ -1,1 +1,1 @@
-create index index_topic_name for (n:Topic) on (n.name);
+// Creates an unique indexcreate constraint on (n:Topic)assert n.name is unique;
