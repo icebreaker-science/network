@@ -1,6 +1,7 @@
 package science.icebreaker.network;
 
 import chen.chaoran.data_manager.core.Startable;
+import science.icebreaker.network.keyword_merge.programs.BaseKeywordMergeProgram;
 import science.icebreaker.network.wikidata.WikidataImporterMaster;
 
 import java.nio.file.Paths;
@@ -21,6 +22,7 @@ public class Main {
         Map<String, Class<? extends Startable>> availablePrograms = new HashMap<String, Class<? extends Startable>>() {
             {
                 put("WikidataImporter", WikidataImporterMaster.class);
+                put("KeywordMerge", BaseKeywordMergeProgram.class);
             }
         };
 

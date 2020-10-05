@@ -1,13 +1,20 @@
 package science.icebreaker.network.keyword_merge.comparators;
 
-public abstract class SimilarityComparator {
+import science.icebreaker.network.keyword_merge.entities.Keyword;
+import science.icebreaker.network.keyword_merge.repository.KeywordRepository;
 
-    public SimilarityResult compare(String word1, String word2) {
-        if(word1.equals(word2))
-            return new SimilarityResult(word1, true);
-        else
-            return sCompare(word1, word2);
+/**
+ * Holds functionality for deciding of 2 keywords are similar or not
+ */
+public abstract class SimilarityComparator {
+    
+    public abstract SimilarityResult compare(Keyword word1, Keyword word2, KeywordRepository repository);
+    
+    public SimilarityComparator or(SimilarityComparator other) {
+        return new OrSimilarityComparator(this, other);
     }
 
-    abstract SimilarityResult sCompare(String word1, String word2);
+    public SimilarityComparator and(SimilarityComparator other) {
+        return new AndSimilarityComparator(this, other);
+    }
 }
