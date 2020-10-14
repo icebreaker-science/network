@@ -15,4 +15,5 @@ public interface KeywordRepository {
     public abstract List<WikiData> getWikiDataByKeyword(Keyword keyword);
     public abstract void load();
     public abstract Keyword getKeywordByName(String name);
+	public abstract void addKeyword(Keyword keyword);
 }

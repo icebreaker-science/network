@@ -34,9 +34,9 @@ public class WordStemStrategy implements SimilarityComparisonStrategy {
 
         if(stemmedWord1.equals(stemmedWord2)) {
             Keyword shorterWord = kw1.length() <= kw2.length() ? word1 : word2;
-            return new SimilarityResult(shorterWord, true); // pick word1 wiki
+            return new SimilarityResult(word1, word2, shorterWord, true); // pick word1 wiki
         }
         else
-            return new SimilarityResult(null, false);
+            return new SimilarityResult(word1, word2, null, false);
     }
 }

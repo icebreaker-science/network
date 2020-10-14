@@ -20,7 +20,7 @@ public class NotSimilarityComparator extends SimilarityComparator {
     @Override
     public SimilarityResult compare(Keyword word1, Keyword word2, KeywordRepository repository) {
         SimilarityResult result = comp.compare(word1, word2, repository);
-        if(result.isSimilar) return new SimilarityResult(null, false);
-        else return new SimilarityResult(word1, true); //pick any word
+        if(result.isSimilar) return new SimilarityResult(word1, word2, null, false);
+        else return new SimilarityResult(word1, word2, word1, true); //pick any word
     }
 }

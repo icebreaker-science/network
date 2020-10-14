@@ -27,9 +27,9 @@ public class RemoveSplitCharsStrategy implements SimilarityComparisonStrategy {
         
         if(kw1.equals(kw2)) {
             Keyword longerWord = word1.keyword.length() >= word2.keyword.length() ? word1 : word2;
-            return new SimilarityResult(longerWord, true);
+            return new SimilarityResult(word1, word2, longerWord, true);
         }
-        else return new SimilarityResult(null, false);
+        else return new SimilarityResult(word1, word2, null, false);
     }
 
 }

@@ -22,7 +22,7 @@ public class SimilarityComparatorUnit extends SimilarityComparator {
     public SimilarityResult compare(Keyword word1, Keyword word2, KeywordRepository repository) {
         SimilarityResult result; //TODO: if needed save repeated comparisons
         if(word1.equals(word2))
-            result = new SimilarityResult(word1, true);
+            result = new SimilarityResult(word1, word2, word1, true);
         else
             result = strategy.compare(word1, word2);
 

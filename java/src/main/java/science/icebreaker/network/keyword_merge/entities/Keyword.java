@@ -13,4 +13,9 @@ public class Keyword {
     public String toString() {
         return this.keyword;
     }
+
+    @Override
+    public int hashCode() {
+        return this.keyword.hashCode();
+    }
 }

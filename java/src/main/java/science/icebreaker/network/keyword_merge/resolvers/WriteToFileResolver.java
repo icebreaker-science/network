@@ -4,7 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import science.icebreaker.network.keyword_merge.entities.Keyword;
+import science.icebreaker.network.keyword_merge.comparators.SimilarityResult;
 
 public class WriteToFileResolver implements SimilarityResultResolver {
 
@@ -19,9 +19,9 @@ public class WriteToFileResolver implements SimilarityResultResolver {
     }
 
     @Override
-    public void merge(Keyword word1, Keyword word2, Keyword origin) {
+    public void merge(SimilarityResult result) {
         try {
-            this.BW.write(word1.keyword + "," + word2.keyword + "," + origin.keyword + "\n");
+            this.BW.write(result.kw1.keyword + "," + result.kw2.keyword + "," + result.origin.keyword + "\n");
             counter++;
 
             // Report results once in a while
