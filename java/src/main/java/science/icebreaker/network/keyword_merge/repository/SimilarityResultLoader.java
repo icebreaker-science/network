@@ -33,7 +33,7 @@ public abstract class SimilarityResultLoader {
 
         if(existingKeyword != null) return existingKeyword;
         else {
-            Keyword newKeyword = new Keyword(keywordName, null);
+            Keyword newKeyword = new Keyword(keywordName, null, false);
             this.newKeywords.add(newKeyword);
 
             this.keywordRepo.addKeyword(newKeyword);

@@ -1,6 +1,7 @@
 package science.icebreaker.network.keyword_merge.programs;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.ListIterator;
 
@@ -13,8 +14,8 @@ import science.icebreaker.network.keyword_merge.repository.SimilarityResultLoade
 import science.icebreaker.network.keyword_merge.resolvers.MergeInDBResolver;
 
 public class MergeResultsInDBProgram implements Startable {
-    private void merge(String[] mergeFilePaths) throws IOException {
-        KeywordRepository keywordRepo = new LoadFromDBRepository();
+    private void merge(String[] mergeFilePaths) throws IOException, SQLException {
+        KeywordRepository keywordRepo = new LoadFromDBRepository(false);
         keywordRepo.load(); //load existing keywords from repo
 
         SimilarityResultLoader loader = new LoadFromCSVSimilarityLoader(Arrays.asList(mergeFilePaths), keywordRepo);
@@ -29,7 +30,7 @@ public class MergeResultsInDBProgram implements Startable {
         resolver.end(); //cleanup DB inconsistencies
     }
 
-    public void start(String[] args) throws IOException {
+    public void start(String[] args) throws IOException, SQLException {
         this.merge(args);
     }
 }
