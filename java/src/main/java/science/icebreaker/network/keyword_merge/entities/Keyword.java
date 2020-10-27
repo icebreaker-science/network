@@ -32,4 +32,8 @@ public class Keyword {
         this.aliases.add(alias);
     }
     
+    @Override
+    public boolean equals(Object o) {
+        return (o instanceof Keyword) && this.keyword == ((Keyword)o).keyword;
+    }
 }
