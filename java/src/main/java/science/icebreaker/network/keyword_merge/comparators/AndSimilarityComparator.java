@@ -21,7 +21,7 @@ public class AndSimilarityComparator extends SimilarityComparator {
             SimilarityResult res1 = comp1.compare(word1, word2, repository);
             if(!res1.isSimilar) return res1;
             SimilarityResult res2 = comp2.compare(word1, word2, repository);
-            if(!res1.equals(res2)) return new SimilarityResult(null, false); // Comparators inconsistent
+            if(!res1.equals(res2)) return new SimilarityResult(word1, word2, null, false); // Comparators inconsistent
             return res2;
         }
 }

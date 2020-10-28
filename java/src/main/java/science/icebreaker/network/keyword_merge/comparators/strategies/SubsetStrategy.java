@@ -23,11 +23,11 @@ public class SubsetStrategy implements SimilarityComparisonStrategy {
         Set<String> word2Fragments = new HashSet<String>(Arrays.asList(kw2.split(" ")));
         if(isSubset(word1Fragments, word2Fragments)) {
             if(word1Fragments.size() >= word2Fragments.size())
-                return new SimilarityResult(word1, true);
+                return new SimilarityResult(word1, word2, word1, true);
             else
-                return new SimilarityResult(word2, true);
+                return new SimilarityResult(word1, word2, word2, true);
         } 
-        else return new SimilarityResult(null, false);
+        else return new SimilarityResult(word1, word2, null, false);
     }
 
     private boolean isSubset(Set<String> word1Fragments, Set<String> word2Fragments) {

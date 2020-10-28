@@ -10,4 +10,5 @@ public interface SimilarityComparisonStrategy {
     public static final SimilarityComparisonStrategy RemoveSplitChars = new RemoveSplitCharsStrategy();
     public static final SimilarityComparisonStrategy Subset = new SubsetStrategy();
     public static final SimilarityComparisonStrategy WordStem = new WordStemStrategy();
+    public static final SimilarityComparisonStrategy Aliases = new AliasesStrategy();
 }

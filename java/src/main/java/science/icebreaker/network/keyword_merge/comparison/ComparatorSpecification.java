@@ -42,7 +42,7 @@ public class ComparatorSpecification {
         SimilarityResult res = comparator.compare(word1, word2, repository);
 
         //resolve
-        if(res.isSimilar) resolver.merge(word1, word2, res.origin);
+        if(res.isSimilar) resolver.merge(res);
     }
 
     public void finish() {
