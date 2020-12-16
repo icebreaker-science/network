@@ -28,10 +28,22 @@ public class LoadFromCSVSimilarityLoader extends SimilarityResultLoader {
 
                     String[] attributes = line.split(",");
                     //KW1, KW2, Suggested Sim Word, Merge Decision, Keyword To Merge
-                    Keyword kw1 = mergeKeyword(attributes[0]);
-                    Keyword kw2 = mergeKeyword(attributes[1]);
-                    Keyword origin = mergeKeyword(attributes[4]);
-                    boolean isSimilar = attributes[3].equals("true");
+                    boolean isSimilar = attributes.length > 2 && !attributes[2].equals("*");
+                    if(!isSimilar) {
+                        line = br.readLine();
+                        continue;
+                    }
+
+                    String kw1s = attributes[0];
+                    String kw2s = attributes[1];
+                    String origins = attributes[2];
+
+                    if(kw1s.endsWith("*")) kw1s = kw1s.substring(0, kw1s.length() - 1);
+                    if(kw2s.endsWith("*")) kw2s = kw2s.substring(0, kw2s.length() - 1);
+
+                    Keyword kw1 = mergeKeyword(kw1s);
+                    Keyword kw2 = mergeKeyword(kw2s);
+                    Keyword origin = mergeKeyword(origins);
                     SimilarityResult result = new SimilarityResult(kw1, kw2, origin, isSimilar);
                     this.similarity.add(result);
                     line = br.readLine();
