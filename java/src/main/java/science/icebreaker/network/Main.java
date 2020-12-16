@@ -3,6 +3,7 @@ package science.icebreaker.network;
 import chen.chaoran.data_manager.core.Startable;
 import science.icebreaker.network.keyword_merge.programs.BaseKeywordMergeProgram;
 import science.icebreaker.network.keyword_merge.programs.MergeResultsInDBProgram;
+import science.icebreaker.network.keyword_merge.programs.RemoveKeywordsProgram;
 import science.icebreaker.network.wikidata.WikidataImporterMaster;
 
 import java.nio.file.Paths;
@@ -25,6 +26,7 @@ public class Main {
                 put("WikidataImporter", WikidataImporterMaster.class);
                 put("KeywordMerge", BaseKeywordMergeProgram.class);
                 put("MergeInDB", MergeResultsInDBProgram.class);
+                put("DeleteNodes", RemoveKeywordsProgram.class);
             }
         };
 

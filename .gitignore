@@ -20,3 +20,4 @@ __pycache__/
 /neo4j/logs/
 /neo4j/plugins
 /neo4j/import/
+/neo4j/bkups

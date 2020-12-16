@@ -4,14 +4,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.TransactionWork;
-import org.neo4j.driver.internal.InternalNode;
 import org.neo4j.driver.Result;
 
 import science.icebreaker.network.Database;
@@ -32,9 +32,11 @@ public class MergeInDBResolver implements SimilarityResultResolver {
     private PreparedStatement putKeywordRefStmt;
     private PreparedStatement addNewKeywordStmt;
     private PreparedStatement updateWeightStmt;
+	private Set<String> usedKeywords;
 
     public MergeInDBResolver(KeywordRepository keywordRepo) {
         this.keywordRepo = keywordRepo;
+        this.usedKeywords = new HashSet<String>();
         this.refersTo = new HashMap<Keyword, Keyword>();
         try {
             Connection conn = Database.getConnection();
@@ -78,6 +80,8 @@ public class MergeInDBResolver implements SimilarityResultResolver {
      * @param word2
      */
     public void mapWord(Keyword word1, Keyword word2) {
+        this.usedKeywords.add(word1.keyword);
+        this.usedKeywords.add(word2.keyword);
         this.refersTo.put(word1, word2);
     }
 
@@ -113,7 +117,7 @@ public class MergeInDBResolver implements SimilarityResultResolver {
             return getKeywordAncestor(next);
     }
 
-    public void propagateResultsToDB(List<Keyword> newKeywords) {
+    public void propagateResultsToDB(Set<Keyword> newKeywords) throws Exception {
         // add non existing keywords
         for (Keyword newKeyword : newKeywords) {
             // sql side
@@ -140,7 +144,31 @@ public class MergeInDBResolver implements SimilarityResultResolver {
 
         }
 
+        // When resuming a merge process, use this, as new keywords have been
+        // already added in sql but not in neo4j
+
+        // this.usedKeywords.forEach(nkw -> {
+        //     try (Session session = Graph.getInstance().getSession()) {
+        //         session.writeTransaction(new TransactionWork<Void>() {
+        //             @Override
+        //             public Void execute(Transaction tx) {
+        //                 Map<String, Object> params = new HashMap<>();
+        //                 params.put("name", nkw);
+        //                 tx.run("CREATE (:Topic {name:$name, weight:0})", params);
+        //                 return null;
+        //             }
+        //         });
+        //     }
+        // });
+
+        int total = this.refersTo.size();
+        int current = 0;
+        int countEach = 100;
         for (Entry<Keyword, Keyword> entry : this.refersTo.entrySet()) {
+            // Skip self reference
+            if(entry.getKey().keyword.equals(entry.getValue().keyword))
+                continue;
+
             // SQL Side
             try {
                 // Put the sql entry
@@ -161,78 +189,141 @@ public class MergeInDBResolver implements SimilarityResultResolver {
                         params.put("parent", entry.getValue().keyword);
                         params.put("child", entry.getKey().keyword);
 
-                        // add intersecting papers weight
                         /**
-                         * Since weights are collected at the end, both relation and node weights can be
-                         * lists or numbers to be safe, convert both to lists and concatenate. the
-                         * transaction query ran at the end will collect the weights
+                         * New node weight is equal both node weight - the weight of the edge between them (the common references)
+                         * Adding both nodes' weight is done after merging
                          */
                         tx.run("MATCH (p:Topic { name: $parent })-[rel:RELATED_TO]-(c:Topic { name: $child }) "
-                                + "WITH reduce(a = [], rW IN rel.weight | a + -rW) as listRelW, p "
-                                + "WITH reduce(acc = [], pW IN p.weight | acc + pW) as pRelW, listRelW, p "
-                                + "SET p.weight = pRelW + listRelW", params);
-
-                        /**
+                                + "WITH p, p.weight - rel.weight as nW "
+                                + "SET p.weight = nW", params);
+                        /**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
                          * Merge the nodes while combining weight and edge references and dropping all
                          * names except for the parent's
-                         */
+                        */
                         tx.run("MATCH (n1:Topic { name: $parent }), (n2:Topic { name: $child }) "
-                                + "WITH head(collect([n1, n2])) as nodes " + "CALL apoc.refactor.mergeNodes(nodes,{ "
-                                + "  properties: { " + "      name:'discard', " + "      weight:'combine', "
-                                + "      references:'combine' " + "    }, " + "   mergeRels:true " + "}) "
-                                + "YIELD node " + "RETURN count(*) ", params);
+                                + "WITH head(collect([n1, n2])) as nodes "
+                                + "CALL apoc.refactor.mergeNodes(nodes,{ "
+                                + "  properties: { "
+                                + "      name:'discard', "
+                                + "      weight:'combine', "
+                                + "      references:'combine' "
+                                + "    }, "
+                                + "   mergeRels:true "
+                                + "}) "
+                                + "YIELD node " 
+                                + "RETURN count(*) ", params);
+
+                        
+                        // remove self relationships
+                        tx.run("MATCH (n:Topic {name: $parent})-[r:RELATED_TO]-(n) DELETE r", params);
+
+                        /**
+                         * 1-Since merging does not recalculate the edge weights, do it manually
+                         * 2-Node weights are combined in a list by the previous function, add them.
+                         */
+                        tx.run("MATCH(n:Topic {name: $parent})-[rel:RELATED_TO]-(n2:Topic) "
+                                + "WITH n, rel, size(rel.references) as relW, reduce(acc=0, varW IN n.weight | acc + varW) as cW "
+                                + "SET rel.weight = relW "
+                                + "SET n.weight = cW ", params);
+
                         return null;
                     }
 
                 });
             }
+            
+            try (Session session = Graph.getInstance().getSession()) {
+                session.writeTransaction(new TransactionWork<Void>() {
+                    @Override
+                    public Void execute(Transaction tx) {
+                        Map<String, Object> params = new HashMap<>();
+                        params.put("parent", entry.getValue().keyword);
+
+                        /**
+                         * Set the weights in postgres to the new values
+                         */
+                        Result res = tx.run("MATCH(n:Topic {name: $parent}) RETURN n", params);
+                        res.forEachRemaining(record -> {
+                            int newWeight = Integer.parseInt(record.get("n").asMap().get("weight").toString());
+                            try {
+                                updateWeightStmt.setLong(1, newWeight);
+                                updateWeightStmt.setString(2, entry.getValue().keyword);
+                                updateWeightStmt.execute();
+                            } catch (SQLException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        });
+                        
+                        return null;
+                    }
+                });
+            }
+
+            current++;
+            if(current % countEach == 0)
+                System.out.println("Merged: " + current + "/" + total);
         }
+        System.out.println("Done merging");
     }
 
     public void end() {
-        try (Session session = Graph.getInstance().getSession()) {
+        Graph.getInstance().close();
+    }
 
-            // cleanup the graph
+    public void findCycles() {
+        Set<Keyword> toDisconnect = new HashSet<Keyword>();
+        for(Entry<Keyword, Keyword> keywordEntry : this.refersTo.entrySet()) {
+            if(keywordEntry.getKey() == keywordEntry.getValue())
+                toDisconnect.add(keywordEntry.getKey());
+        }
+
+        for(Keyword keyword : toDisconnect) {
+            this.refersTo.remove(keyword);
+        }
+
+        for(Keyword keyword : this.refersTo.keySet()) {
+            findCycle(keyword, new HashSet<Keyword>());
+        }
+    }
+    
+    private void findCycle(Keyword word, Set<Keyword> set) {
+        Keyword next = this.refersTo.getOrDefault(word, word);
+        if (next.equals(word))
+            return;
+        else if(set.contains(next)) {
+            handleCycles(set);
+        }
+        else {
+            set.add(word);
+            set.add(next);
+            findCycle(next, set);
+        }
+    }
+
+    private void handleCycles(Set<Keyword> set) {
+        String chain = set.stream().map(keyword -> keyword.keyword).reduce("", (acc, val) -> acc+","+val);
+        System.out.println(chain);
+    }
+
+
+    /**
+     * Adds missing keywords from postgres to neo4j
+     */
+    public void syncKeywords() {
+        final Set<String> neo4jKeywords = new HashSet<String>();
+
+        try (Session session = Graph.getInstance().getSession()) {
             session.writeTransaction(new TransactionWork<Void>() {
                 @Override
                 public Void execute(Transaction tx) {
-                    // remove self relationships
-                    tx.run("MATCH (n:Topic)-[r:RELATED_TO]-(n:Topic) " + "DELETE r");
-
-                    // add up relationship weights
-                    tx.run("MATCH (:Topic)-[r:RELATED_TO]-(:Topic) " + "SET r.weight = size(r.references)");
-
-                    // add up node weights
-                    Result result = tx
-                            .run("MATCH (n:Topic) " + "SET n.weight = reduce(base = 0, w IN n.weight | base + w) "
-                                    + "WITH COLLECT(n) as nodes " + "RETURN nodes");
-
-                    //add 
-                    while (result.hasNext()) {
-                        Map<String, Object> row = result.next().asMap();
-                        for (Entry<String, Object> column : row.entrySet()) {
-                            List<InternalNode> nodesList = (List<InternalNode>) column.getValue();
-                            nodesList.forEach(nodeMap -> {
-                                Map<String, Object> map = nodeMap.asMap();
-                                String name = (String) map.get("name");
-                                Long weight = (Long) map.get("weight");
-                                try {
-                                    updateWeightStmt.setLong(1, weight);
-                                    updateWeightStmt.setString(2, name);
-                                    updateWeightStmt.execute();
-                                } catch (SQLException e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
-                                }
-                            });
-                        }
-                    }
+                    Result res = tx.run("MATCH (n:Topic) RETURN n");
+                    res.forEachRemaining(record -> neo4jKeywords.add(record.get("n").asMap().get("name").toString()));
                     return null;
                 }
-                
-            });
-
-            Graph.getInstance().close();
+           });
         }
+
+        this.usedKeywords.removeAll(neo4jKeywords);
     }
 }

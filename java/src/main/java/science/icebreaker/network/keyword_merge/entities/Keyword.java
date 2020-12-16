@@ -34,6 +34,6 @@ public class Keyword {
     
     @Override
     public boolean equals(Object o) {
-        return (o instanceof Keyword) && this.keyword == ((Keyword)o).keyword;
+        return (o instanceof Keyword) && this.keyword.equals(((Keyword)o).keyword);
     }
 }

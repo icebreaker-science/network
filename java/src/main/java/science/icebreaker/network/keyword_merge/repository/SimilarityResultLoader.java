@@ -1,8 +1,10 @@
 package science.icebreaker.network.keyword_merge.repository;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
 import science.icebreaker.network.keyword_merge.comparators.SimilarityResult;
 import science.icebreaker.network.keyword_merge.entities.Keyword;
@@ -18,8 +20,8 @@ public abstract class SimilarityResultLoader {
         this.keywordRepo = keywordRepo;
     }
 
-    public List<Keyword> getNewKeywords() {
-        return newKeywords;
+    public Set<Keyword> getNewKeywords() {
+        return new HashSet<Keyword>(newKeywords);
     }
 
     public abstract void load();
